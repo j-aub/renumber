@@ -11,4 +11,5 @@ COPY ./app .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 RUN rm requirements.txt
 
-CMD ["gunicorn", "-t", "120", "-b", "0.0.0.0:80", "-w", "4", "app:app"]
+EXPOSE 80:8080/tcp
+CMD ["gunicorn", "-t", "120", "-b", "127.0.0.1:8000", "-w", "4", "app:app"]
