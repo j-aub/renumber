@@ -8,6 +8,8 @@ WORKDIR /app
 
 COPY ./app .
 
+RUN apk add gawk
+
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 RUN rm requirements.txt
 
