@@ -5,7 +5,7 @@ import logging
 
 app = Flask(__name__)
 
-script = ['awk', '-f', './renumber.awk']
+script = ['gawk', '-f', './renumber.awk']
 
 @app.route('/', methods=['POST', 'GET'])
 def renumber():
