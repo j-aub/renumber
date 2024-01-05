@@ -1,17 +1,32 @@
-FROM python:3.12-alpine
+FROM rust:latest as builder
+
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt update && apt install -y musl-tools musl-dev
+
+WORKDIR /app
+
+COPY ./app ./
+RUN cargo build --target x86_64-unknown-linux-musl --release
+
+WORKDIR /gawk
+ADD https://ftp.gnu.org/gnu/gawk/gawk-5.3.0.tar.xz ./gawk.tar.xz
+RUN tar --strip-components=1 -xvf gawk.tar.xz
+
+RUN ./configure LDFLAGS=-static
+RUN make
+
+# image
+FROM scratch
+
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/app ./app
+COPY ./app/templates ./templates/
+
+COPY --from=builder /gawk/gawk ./gawk
 
 LABEL org.opencontainers.image.source=https://github.com/j-aub/renumber
 # LABEL org.opencontainers.image.description=""
 LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
-WORKDIR /app
-
-COPY ./app .
-
-RUN apk add gawk
-
-RUN python3 -m pip install --no-cache-dir -r requirements.txt
-RUN rm requirements.txt
-
-EXPOSE 80:8080/tcp
-CMD ["gunicorn", "-t", "120", "-b", "127.0.0.1:8000", "-w", "4", "app:app"]
+ENV PATH=.
+EXPOSE 80:8000/tcp
+CMD ["/app"]

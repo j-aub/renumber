@@ -8,5 +8,5 @@
 	<textarea id="list" name="list" 
 		rows="100"
 		cols="80"
-		placeholder="list here..">{{ renumbered }}</textarea>
+		placeholder="list here..">{{ list }}</textarea>
 </form>
