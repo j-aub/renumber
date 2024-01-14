@@ -19,6 +19,7 @@ RUN make
 FROM scratch
 
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/app ./app
+COPY ./app/Rocket.toml ./
 COPY ./app/templates ./templates/
 
 COPY --from=builder /gawk/gawk ./gawk
