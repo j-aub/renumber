@@ -1,7 +1,0 @@
-First run bootstrap.yml to create the adminstrative user
-
-	ansible-playbook bootstrap.yml
-
-Then run regular playbook to get the service going
-
-	ansible-playbook main.yml
