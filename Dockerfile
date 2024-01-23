@@ -1,33 +1,28 @@
-FROM rust:latest as builder
-
-RUN rustup target add x86_64-unknown-linux-musl
-RUN apt update && apt install -y musl-tools musl-dev
-
-WORKDIR /app
-
-COPY ./app ./
-RUN cargo build --target x86_64-unknown-linux-musl --release
+FROM golang:1.21-bookworm as builder
 
 WORKDIR /gawk
 ADD https://ftp.gnu.org/gnu/gawk/gawk-5.3.0.tar.xz ./gawk.tar.xz
-RUN tar --strip-components=1 -xvf gawk.tar.xz
+RUN apt update \
+	&& apt -y install xz-utils \
+	&& tar --strip-components=1 -xvf gawk.tar.xz \
+	&& ./configure LDFLAGS=-static \
+	&& make
 
-RUN ./configure LDFLAGS=-static
-RUN make
+WORKDIR /renumber
+COPY . /renumber/
+RUN CGO_ENABLED=0 go build -ldflags "-s -w"
 
 # image
 FROM scratch
 
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/app ./app
-COPY ./app/Rocket.toml ./
-COPY ./app/templates ./templates/
-
-COPY --from=builder /gawk/gawk ./gawk
+COPY --from=builder /renumber/renumber /renumber
+# go is picky
+# https://pkg.go.dev/os/exec#hdr-Executables_in_the_current_directory
+COPY --from=builder /gawk/gawk /usr/bin/gawk
 
 LABEL org.opencontainers.image.source=https://github.com/j-aub/renumber
 # LABEL org.opencontainers.image.description=""
 LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
-ENV PATH=.
 EXPOSE 80:8000/tcp
-CMD ["/app"]
+CMD ["/renumber"]
