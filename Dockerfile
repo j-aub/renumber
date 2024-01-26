@@ -10,6 +10,8 @@ RUN apt update \
 
 WORKDIR /renumber
 COPY . /renumber/
+# CGO_ENABLED=0 builds renumber statically which we need to run in a
+# scratch container
 RUN CGO_ENABLED=0 go build -ldflags "-s -w"
 
 # image

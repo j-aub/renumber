@@ -2,6 +2,14 @@
 set -eu
 # $0 is the server
 
+# set timeformat to something parsable
+TIMEFMT='%mE'
+# ensure all files are cached
+cat data/tiny > /dev/null
+cat data/normal > /dev/null
+cat data/massive > /dev/null
+cat data/t-34.mp4 > /dev/null
+
 echo 'testing tiny'
 time curl -F list=@data/tiny "$1" >/dev/null 2>&1
 
