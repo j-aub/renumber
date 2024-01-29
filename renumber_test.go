@@ -6,7 +6,10 @@ import (
 	"testing"
 )
 
+// based on
+// https://go.dev/wiki/TableDrivenTests
 func TestRenumber(t *testing.T) {
+	t.Parallel()
 	tests := map[string]struct {
 		input  string
 		result string
